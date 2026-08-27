@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getCollegesQuerySchema } from "@/lib/validations/college";
@@ -148,3 +150,4 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
