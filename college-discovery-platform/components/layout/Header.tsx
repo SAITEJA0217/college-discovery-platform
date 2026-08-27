@@ -9,9 +9,9 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { name: 'Colleges', href: '#' },
-    { name: 'Compare', href: '#' },
-    { name: 'Predictor', href: '#' },
+    { name: 'Colleges', href: '/colleges' },
+    { name: 'Compare', href: '/compare' },
+    { name: 'Predictor', href: '/predictor' },
   ];
 
   return (
