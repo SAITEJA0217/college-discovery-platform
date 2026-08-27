@@ -1,0 +1,158 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CollegeType {
+  PUBLIC
+  PRIVATE
+  GOVERNMENT
+  AUTONOMOUS
+}
+
+enum ExamType {
+  JEE_MAIN
+  JEE_ADVANCED
+  BITSAT
+  STATE_CET
+  CUET
+}
+
+enum StudentCategory {
+  GENERAL
+  OBC
+  SC
+  ST
+  EWS
+}
+
+model College {
+  id              String      @id @default(uuid())
+  name            String
+  slug            String      @unique
+  city            String
+  state           String
+  locationInfo    String?
+  type            CollegeType
+  description     String?     @db.Text
+  
+  // Application-level validation required:
+  // - annualFees should not be negative.
+  annualFees      Decimal?    @db.Decimal(10, 2)
+  
+  // Application-level validation required:
+  // - rating should be between 0 and 5.
+  rating          Float?
+  totalReviewCount Int        @default(0)
+  
+  // Placement summary (can be updated by aggregation or cron)
+  avgPlacement    Decimal?    @db.Decimal(10, 2)
+  highestPlacement Decimal?   @db.Decimal(10, 2)
+  
+  // Application-level validation required:
+  // - placementPercent should be between 0 and 100.
+  placementPercent Float?
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  courses         Course[]
+  placements      Placement[]
+  reviews         Review[]
+  examCutoffs     ExamCutoff[]
+
+  // Documented Architecture Note: 
+  // Arbitrary substring search at larger scale may eventually use PostgreSQL full-text search 
+  // or trigram indexing, but we rely on basic indexes for this MVP.
+  @@index([name])
+  @@index([city, state])
+  @@index([rating])
+  @@index([annualFees])
+}
+
+model Course {
+  id            String   @id @default(uuid())
+  name          String   // e.g. "Computer Science and Engineering"
+  degree        String   // e.g. "B.Tech", "B.Sc"
+  durationYears Int      // Duration in years
+  
+  // Application-level validation required:
+  // - fees should not be negative.
+  fees          Decimal? @db.Decimal(10, 2) // Course specific fees
+  
+  collegeId     String
+  college       College  @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  
+  examCutoffs   ExamCutoff[]
+
+  @@index([collegeId])
+}
+
+model Placement {
+  id               String   @id @default(uuid())
+  year             Int
+  averagePackage   Decimal? @db.Decimal(10, 2)
+  highestPackage   Decimal? @db.Decimal(10, 2)
+  medianPackage    Decimal? @db.Decimal(10, 2)
+  
+  // Application-level validation required:
+  // - placementPercent should be between 0 and 100.
+  placementPercent Float?   // Percentage of students placed
+
+  collegeId        String
+  college          College  @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+
+  @@index([collegeId])
+  @@index([year])
+  @@unique([collegeId, year])
+}
+
+model Review {
+  id           String   @id @default(uuid())
+  
+  // Application-level validation required:
+  // - rating should be between 1 and 5.
+  rating       Float
+  title        String
+  comment      String   @db.Text
+  reviewerName String?  // Optional, could be anonymous
+  
+  createdAt    DateTime @default(now())
+  
+  collegeId    String
+  college      College  @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+
+  @@index([collegeId])
+}
+
+model ExamCutoff {
+  id             String          @id @default(uuid())
+  exam           ExamType
+  category       StudentCategory
+  
+  // Application-level validation required:
+  // - admissionYear should be a valid year.
+  admissionYear  Int
+  
+  // Application-level validation required:
+  // - openingRank and closingRank should be positive/non-negative.
+  openingRank    Int?
+  closingRank    Int
+  
+  collegeId      String
+  college        College         @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  
+  courseId       String?         // Optional: Cutoff specific to a course
+  course         Course?         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([collegeId])
+  @@index([courseId])
+  @@index([exam, category, closingRank])
+}

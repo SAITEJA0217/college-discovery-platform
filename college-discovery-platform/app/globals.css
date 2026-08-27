@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #f8fafc; /* slate-50 */
+    --foreground: #0f172a; /* slate-900 */
+    
+    --border: #e2e8f0; /* slate-200 */
+    
+    /* Indigo family */
+    --primary: #4f46e5; /* indigo-600 */
+    --primary-hover: #4338ca; /* indigo-700 */
+    --primary-foreground: #ffffff;
+    
+    --muted: #f1f5f9; /* slate-100 */
+    --muted-foreground: #64748b; /* slate-500 */
+    
+    --success: #16a34a; /* green-600 */
+    --success-foreground: #ffffff;
+    
+    --warning: #d97706; /* amber-600 */
+    --warning-foreground: #ffffff;
+    
+    --danger: #dc2626; /* red-600 */
+    --danger-foreground: #ffffff;
+
+    --radius: 0.5rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: #0f172a; /* slate-900 */
+      --foreground: #f8fafc; /* slate-50 */
+      
+      --border: #334155; /* slate-700 */
+      
+      --primary: #6366f1; /* indigo-500 */
+      --primary-hover: #818cf8; /* indigo-400 */
+      --primary-foreground: #ffffff;
+      
+      --muted: #1e293b; /* slate-800 */
+      --muted-foreground: #94a3b8; /* slate-400 */
+      
+      --success: #22c55e; /* green-500 */
+      --success-foreground: #000000;
+      
+      --warning: #f59e0b; /* amber-500 */
+      --warning-foreground: #000000;
+      
+      --danger: #ef4444; /* red-500 */
+      --danger-foreground: #ffffff;
+    }
+  }
+}
+
+@layer base {
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
